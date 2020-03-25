@@ -1,9 +1,6 @@
-#!/usr/bin/python
-
 import httplib2
+from apiclient import discovery
 import pandas as pd
-from apiclient.discovery import build
-from apiclient.errors import HttpError
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
 from oauth2client.tools import argparser, run_flow
@@ -11,7 +8,6 @@ import time
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
-from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 client_secrets_file = "YOURCLIENTSECRET"
@@ -43,7 +39,7 @@ def get_authenticated_service():
   if credentials is None or credentials.invalid:
     credentials = run_flow(flow, storage, None)
 
-  return build(api_service_name, api_version,
+  return discovery.build(api_service_name, api_version,
     http=credentials.authorize(httplib2.Http()))
 def likeVideo(videoId,youtube):
     request = youtube.videos().rate(
@@ -121,9 +117,8 @@ def subscriptions(channel_id,youtube):
 
 
 
-#pip install -r requirements.txt
-#https://console.developers.google.com/apis/dashboard?authuser=0&project=rddsinstagram&folder=&organizationId=
-
+#pip install -r requeriments.txt
+#https://console.developers.google.com/apis/
 if __name__ == "__main__":
     youtube = get_authenticated_service()
     likeVideo('Oyja_2i-p9I',youtube)
