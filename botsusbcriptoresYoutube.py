@@ -10,7 +10,7 @@ import googleapiclient.discovery
 import googleapiclient.errors
 from oauth2client import client
 from oauth2client import tools
-client_secrets_file = "YOURCLIENTSECRET"
+client_secrets_file = "YourNameClienteSecret"
 
 api_service_name = "youtube"
 api_version = "v3"
@@ -68,7 +68,27 @@ def commentVideo(videoId,textOriginal,youtube):
     except Exception as e:
         print(e)
 
-def getLast5Videos(channelId,youtube):
+def searchVideoQuery(query,youtube):
+
+    videos = []
+    pageToken=''
+    search_response = youtube.search().list(
+    q=query,
+    part="id,snippet",
+    type="video",
+    order='date',
+    pageToken=pageToken,
+    maxResults=30
+  ).execute()
+    pageToken=search_response.get("nextPageToken")
+    print(pageToken)
+    for search_result in search_response.get("items", []):
+      if search_result["id"]["kind"] == "youtube#video":
+        videos.append(search_result)
+  
+    return videos
+
+def searchVideoChaneelId(channelId,youtube):
     pks=[]
     try:
       datapk=pd.read_csv("channeltovideo.csv", sep=';')
@@ -91,9 +111,7 @@ def getLast5Videos(channelId,youtube):
     print(pageToken)
     for search_result in search_response.get("items", []):
       if search_result["id"]["kind"] == "youtube#video":
-        videos.append(search_result)
-    print(videos)
-  
+        videos.append(search_result)  
     return videos
 
 
@@ -114,6 +132,20 @@ def subscriptions(channel_id,youtube):
     return add_subscription_response["snippet"]["title"]
     
 
+def bot(youtube):
+  re=searchVideoQuery('curso youtube',youtube)
+  for xre in re:
+    idVideo=xre['id']['videoId']
+    
+    try:
+      nameCanal=xre['snippet']['channelTitle']
+    except Exception as e:
+      nameCanal=''
+    idChannel=xre['snippet']['channelId']
+    print(idChannel,nameCanal,idVideo)
+    likeVideo(idVideo,youtube)
+    subscriptions(idChannel,youtube)
+    commentVideo(idVideo,'hola '+nameCanal+' , buen video , he subido un curso de youtube + python, revisalo si te gusta https://www.youtube.com/watch?v=IbdsHI9bwes',youtube)
 
 
 
@@ -121,7 +153,15 @@ def subscriptions(channel_id,youtube):
 #https://console.developers.google.com/apis/
 if __name__ == "__main__":
     youtube = get_authenticated_service()
-    likeVideo('Oyja_2i-p9I',youtube)
+    #likeVideo('IbdsHI9bwes',youtube)
+    #commentVideo('IbdsHI9bwes','test comment',youtube)
+    # re=searchVideoChaneelId('UCJat9DdRucTJON_dib-1Wkg',youtube)
+    # print(re)
+    # re=searchVideoQuery('curso youtube',youtube)
+    # print(re)
+    # re=subscriptions('UCJat9DdRucTJON_dib-1Wkg',youtube)
+    # print(re)
+    bot(youtube)
 
 
 
